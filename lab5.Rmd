@@ -1,0 +1,99 @@
+---
+title: "Lab 5"
+author: "Angela Lee"
+date: "October 21, 2019"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE) 
+```
+
+1. Read in the following three datasets, using {here} and {rio}:
+  * *sesame13.sav*
+  * *star.csv*
+  * *ais.xlsx*
+  
+*Hint*: For the *ais.xlsx* dataset look at the `skip` argument within the `rio` help 
+  documentation.
+  
+```{r import}
+library(here)
+library(rio)
+library(dplyr)
+library(janitor)
+here("data")
+sesame<-import(here("data", "sesame13.sav"))
+star<- import(here("data", "star.csv"))
+ais<- import(here("data", "ais.xlsx"), setclass = "tbl_df", skip=14)
+
+```
+
+2. Using the ais data, compute the average red blood cell count and average bmi by sport. Output these data as SPSS and EXCEL files. 
+
+```{r q2}
+str(ais)
+aismeans<- ais %>% 
+  group_by(sport) %>% 
+  summarise(meanrcc=mean(rcc), meanbmi=mean(bmi)) #calculating avg red blood cell and average bmi by sport
+
+export(aismeans, here("data","aismeans.sav")) #export as spss
+export(aismeans, here("data","aismeans.xlsx")) #export as excel
+
+```
+
+3. Use the sesame dataset to answer the following question: Was the average 
+  female age higher in schools or at home?   
+  A: Average female age is higher in school compared to at home. 
+
+```{r q3}
+colnames(sesame)
+sesame<- sesame %>% characterize
+
+sesamemean<- sesame %>% 
+  filter(sex=="Female") %>% 
+  group_by(setting) %>% 
+  summarise(agemean=mean(age))
+sesamemean
+#or
+sesamemean2<- sesame %>% 
+  group_by(sex,setting) %>% 
+  summarise(agemean=mean(age))
+
+sesamemean2
+```
+
+4. First, how many rows and columns are in the *star* dataset? Next, remove outliers using a really poor method, just for practice, by eliminating students whose math (*tmathss*) scores were more than three standard deviations **above or below** the corresponding mean. How many rows are in the dataset now?
+
+```{r q4}
+str(star) #5748 rows, 12 columns
+
+star<- star %>% 
+  filter(tmathss > mean(tmathss)-3*sd(tmathss) & tmathss < mean(tmathss)+3*sd(tmathss))
+
+str(star) #5743 rows 
+
+```
+
+5. Use the star dataset to compute standardized math and reading scores (*tmathss* and *treadss*); i.e., for each of those variables, subtract the mean from each observation and divide by the standard deviation: $x_s = \frac{x_i - \bar{X}}{sd(X)}$. 
+  + Check that your computations were correct by computing the mean and standard deviation of each variable (they should be 0 and 1). 
+  + Compute the mean of the standardized variable for all *sex*/*frl* combinations (I'm asking you to extend what you know, we haven't talked explicitly about how to do this yet). 
+  + What do you make of these findings? Do you see an effect by sex? An FRL effect? Is there evidence of an interaction (i.e., that the effect of FRL is greater for boys versus girls)?  
+  A: There seems to be an effect of FRL, such that the FRL "yes" condition has lower standardized testing scores compared to the FRl "no" condition. There also seems to be an effect of gender such that girls have higher standardized test scores regardless of condition. By only looking at means, I am not convinced there is an evidence of an interaction (i.e. there does not appear to be differing impact of FRL depending on gender)
+
+```{r q5}
+star<- star %>% 
+  mutate(sdtmaths= (tmathss-mean(tmathss))/sd(tmathss),
+         sdtreads= (treadss-mean(treadss))/sd(treadss))
+#computing standardized scores
+
+starsum<- star %>% 
+  summarise(meansdtmath=mean(sdtmaths), meansdtreads=mean(sdtreads), sdtmath=sd(sdtmaths), sdtreads=sd(sdtreads))
+starsum #verifying means are 0 and SDs are 1
+
+stargroup<- star %>% 
+  group_by(sex, frl) %>% 
+  summarise(mean_sdtmaths=mean(sdtmaths), mean_sdtreads=mean(sdtreads))
+stargroup
+
+```
