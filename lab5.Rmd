@@ -6,6 +6,8 @@ output: html_document
 ---
 I am changing something as an example to use in class for github. 
 
+Hi Angela, I have access to your data.
+
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE) 
 ```
