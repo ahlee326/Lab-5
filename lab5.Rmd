@@ -5,6 +5,7 @@ date: "October 21, 2019"
 output: html_document
 ---
 I am changing something as an example to use in class for github. 
+Hi Ellen, this is an example of a merge conflict. 
 
 Hi Angela, I have access to your data.
 
