@@ -12,6 +12,7 @@ Hi Angela, I have access to your data.
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE) 
+#hi ellen let's try this a 3rd time!
 ```
 
 1. Read in the following three datasets, using {here} and {rio}:
